@@ -105,7 +105,7 @@ def evaluate_agent(env, type, policy=None, Q=None):
             elif type == "MPC":
                 action = policy.control(state)
             state, _, terminated, truncated, _ = env.step(action)
-            reward = reward_function(state, terminated)
+            reward = reward_function(state, terminated) * (-1 if type == "Q" else 1)
             episode_reward += reward
 
             if terminated or truncated:

@@ -85,7 +85,10 @@ class CartpoleMPC:
                 raise NotImplementedError("iLQR not implemented")
             
             X, U = X_new, U_new
-        return U
+
+        ks = np.array(ks)
+        Ks = np.array(Ks)
+        return U, X, ks, Ks
 
     def reset(self):
         """Reset the warm start buffer for a new episode"""
@@ -93,8 +96,8 @@ class CartpoleMPC:
     
     def control(self, state):
         """MPC interface: solve and shift"""
-        U_opt = self.solve_ilqr(state, self.U_guess)
-
+        U_opt, _, _, _ = self.solve_ilqr(state, self.U_guess)
+        
         # Extract first action and ensure it's a scalar
         action = U_opt[0, 0] if U_opt.ndim == 2 else U_opt[0]
         
@@ -137,10 +140,12 @@ if __name__ == "__main__":
             
         while True:
             # Solve for the entire horizon
-            u_plan = mpc.solve_ilqr(state, np.zeros((H_ILQR, 1)))
+            u_plan, x_plan, ks, Ks = mpc.solve_ilqr(state, np.zeros((H_ILQR, 1)))
+            
             for t in range(H_ILQR):
-                action = u_plan[t, 0]
-                state, _, terminated, truncated, info = play_env.step(action)
+                action = u_plan[t] + ks[t] + Ks[t] @ (state - x_plan[t]) 
+                state, _, terminated, truncated, info = play_env.step(action[0])
+            
                 if terminated or truncated:
                     state, _ = play_env.reset()
                     reason = "Terminated (Fell/Out of Bounds)" if terminated else "Truncated (Time Limit)"

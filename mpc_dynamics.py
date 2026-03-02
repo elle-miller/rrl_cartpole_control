@@ -220,7 +220,7 @@ if __name__ == "__main__":
     REPLAY_CAP = 100000    # Max transitions in replay buffer
     NUM_EPOCHS = 20        # More training as dataset grows
     BATCH_SIZE = 512
-    H_MPC_LEARNED = 10     # Shorter horizon reduces compounding error
+    H_MPC_LEARNED = 20
     EXPLORATION_NOISE = 0.1  # When using MPC, add noise for coverage
 
     agent = DynamicsMPC(dynamics_model, H=H_MPC_LEARNED, max_iters=5)

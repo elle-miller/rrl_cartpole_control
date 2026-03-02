@@ -4,9 +4,30 @@ from my_cartpole_env import CartPoleEnv
 from gymnasium.wrappers import TimeLimit
 from hyperparameters import *
 from common import *
-from plotting import plot_loss_and_returns
 import torch
 import torch.nn as nn
+
+
+def plot_loss_and_returns(losses, returns, x_label="Rollout"):
+    """Plot average loss and returns on the same figure with twin y-axes."""
+    fig, ax1 = plt.subplots()
+    x = np.arange(len(losses))
+
+    color1 = "C0"
+    ax1.set_xlabel(x_label)
+    ax1.set_ylabel("Average Loss", color=color1)
+    ax1.plot(x, losses, color=color1, marker="o", markersize=4)
+    ax1.tick_params(axis="y", labelcolor=color1)
+    ax1.grid(True, alpha=0.3)
+
+    ax2 = ax1.twinx()
+    color2 = "C1"
+    ax2.set_ylabel("Return", color=color2)
+    ax2.plot(x, returns, color=color2, marker="s", markersize=4)
+    ax2.tick_params(axis="y", labelcolor=color2)
+
+    fig.tight_layout()
+    plt.savefig("loss_and_returns.png", dpi=300, bbox_inches="tight", pad_inches=0.05)
 
 
 class DynamicsMPC:
